@@ -60,7 +60,7 @@ public class LeafSpawnerManager : MonoBehaviour
         for (int i = 0; i < toSpawn; i++)
         {
             pendingSpawns++;
-            DOVirtual.DelayedCall(i * swarmStagger, () =>
+            DOVirtual.DelayedCall(i * swarmDelay, () =>
             {
                 pendingSpawns--;
                 SpawnSingleLeaf();
