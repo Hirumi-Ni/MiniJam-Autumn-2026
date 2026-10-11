@@ -11,10 +11,6 @@ public class LeafSpawnerManager : MonoBehaviour
 
     [Header("Spawn Area")]
     [SerializeField] private BoxCollider2D spawnAreaCollider;
-
-    [Header("Spawn Puff")]
-    [Tooltip("Puff animation played where each leaf appears")]
-    [SerializeField] private GameObject spawnPuffPrefab;
     #endregion
 
     #region [Spawn Rate]
@@ -80,23 +76,10 @@ public class LeafSpawnerManager : MonoBehaviour
         Vector2 spawnPos = GetRandomSpawnPosition();
         Quaternion rotation = Quaternion.Euler(0, 0, Random.Range(0f, 360f));
 
-        SpawnPuff(spawnPos);
-
         GameObject instance = PoolManager.Instance.Spawn(leafPrefab, spawnPos, rotation);
         if (instance != null && instance.TryGetComponent(out LeafController leaf))
         {
             leaf.Spawn(data);
-        }
-    }
-
-    private void SpawnPuff(Vector2 position)
-    {
-        if (spawnPuffPrefab == null) return;
-
-        GameObject puff = PoolManager.Instance.Spawn(spawnPuffPrefab, position, Quaternion.identity);
-        if (puff != null && puff.TryGetComponent(out SpawnPuff puffAnim))
-        {
-            puffAnim.Play();
         }
     }
 

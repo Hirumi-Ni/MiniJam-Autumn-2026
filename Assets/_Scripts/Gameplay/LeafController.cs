@@ -1,6 +1,7 @@
 using DG.Tweening;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
 public class LeafController : MonoBehaviour
 {
     #region [Static]
@@ -8,7 +9,6 @@ public class LeafController : MonoBehaviour
     #endregion
 
     #region [References]
-    [Header("Visual Children")]
     [SerializeField] private SpriteRenderer leafRenderer;
     [SerializeField] private SpriteRenderer shadowRenderer;
 
@@ -38,6 +38,7 @@ public class LeafController : MonoBehaviour
     [Range(0f, 1f)][SerializeField] private float shadowLandedAlpha = 0.7f;
 
     [Header("Landing Feedback")]
+    [SerializeField] private GameObject landPuffPrefab;
     [SerializeField] private float landPunchStrength = 0.15f;
     [SerializeField] private float landPunchDuration = 0.25f;
 
@@ -180,7 +181,15 @@ public class LeafController : MonoBehaviour
 
         leafRenderer.transform.DOPunchScale(Vector3.one * -landPunchStrength, landPunchDuration, 6, 0.5f).SetLink(gameObject);
 
+        SpawnLandPuff();
+
         AudioManager.Instance.PlayAudio(AudioManager.Instance.SFX_LeafPop);
+    }
+
+    private void SpawnLandPuff()
+    {
+        if (landPuffPrefab == null || PoolManager.Instance == null) return;
+        PoolManager.Instance.Spawn(landPuffPrefab, transform.position, Quaternion.identity);
     }
 
     private void TriggerDecay()

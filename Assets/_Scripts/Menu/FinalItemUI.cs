@@ -4,17 +4,13 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-// The last item in the game. Separate from UpgradeUI, with no ScriptableObject.
-// - Cost is always visible.
-// - Until the player can afford it, the title and description are hidden and the icon shows a question mark.
-// - Buying it only needs enough coins. Then it fades to black and loads the ending scene.
 public class FinalItemUI : MonoBehaviour
 {
-    private const int FinalCost = 50000;
+    [SerializeField] private int FinalCost = 50000;
 
     [Header("Item Info")]
-    [SerializeField] private string itemTitle = "The Final Offering";
-    [TextArea(2, 4)][SerializeField] private string itemDescription = "Rekindle the fire. The story ends here.";
+    [SerializeField] private string itemTitle;
+    [TextArea(2, 4)][SerializeField] private string itemDescription;
     [SerializeField] private Sprite itemIcon;
 
     [Header("UI")]
@@ -64,7 +60,6 @@ public class FinalItemUI : MonoBehaviour
 
         buyButton.enabled = false;
 
-        // Cost is always shown, so set it once
         SetText(costText, "$" + FinalCost);
         Refresh();
     }
@@ -117,7 +112,6 @@ public class FinalItemUI : MonoBehaviour
         SetText(titleText, hiddenTitle);
         SetText(descriptionText, hiddenDescription);
 
-        // Keep the icon slot, but show the question mark instead of the real icon
         if (iconImage != null)
         {
             iconImage.transform.DOKill();

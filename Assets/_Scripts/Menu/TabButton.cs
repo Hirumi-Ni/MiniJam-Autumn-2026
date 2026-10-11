@@ -3,9 +3,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-// Put on each tab button. Place the tab in the editor where it sticks out when selected.
-// When deselected it slides by tuckOffset, goes behind the panels, and gets darker.
-// Hovering sticks it out again. Don't put tabs inside a LayoutGroup, because the layout would ignore these positions.
 public class TabButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [Header("Tuck")]

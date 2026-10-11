@@ -15,7 +15,6 @@ public class MenuTabUI : MonoBehaviour
         Select(1, playSound: false, instant: true);
     }
 
-    // Hook these up to the tab buttons' OnClick
     public void SelectTab1() => Select(1, playSound: true);
     public void SelectTab2() => Select(2, playSound: true);
 

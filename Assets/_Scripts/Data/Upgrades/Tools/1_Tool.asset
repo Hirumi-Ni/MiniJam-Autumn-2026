@@ -16,7 +16,7 @@ MonoBehaviour:
   description: "Multiply collection radius \xD71.25 and +1 token per leaf."
   icon: {fileID: -5651667117540000442, guid: e599f093373da60488d9380d2c2371b8, type: 3}
   prerequisiteUpgrade: {fileID: 0}
-  cost: 15
+  cost: 10
   effects:
   - stat: 0
     mode: 1
