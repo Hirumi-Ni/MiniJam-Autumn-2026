@@ -16,7 +16,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1396608582919900276
 Transform:
   m_ObjectHideFlags: 0
@@ -261,7 +261,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LeafController
   leafRenderer: {fileID: 8892875025148427271}
   shadowRenderer: {fileID: 2479622590519616156}
-  shadowOffset: {x: 0, y: -0.1}
   leafData: {fileID: 0}
   leafCoinAmount: 1
   leafLifetimeMin: 10
@@ -275,8 +274,8 @@ MonoBehaviour:
   fallEase: 5
   shadowStartScale: 1.4
   shadowLandedScale: 0.7
-  shadowStartAlpha: 0.05
-  shadowLandedAlpha: 0.6
+  shadowStartAlpha: 0.015
+  shadowLandedAlpha: 0.5
   landPunchStrength: 0.15
   landPunchDuration: 0.25
   collectPopDuration: 0.15

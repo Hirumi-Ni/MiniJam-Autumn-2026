@@ -10226,10 +10226,30 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 11bb8c5afe9c9d849957201b6fc54e88, type: 2}
   - {fileID: 11400000, guid: 3e98e7cc4b2772c499860b162ba29d14, type: 2}
   - {fileID: 11400000, guid: 4c5f839d9bd3f9a4b808fc950b57f5f9, type: 2}
+  - {fileID: 11400000, guid: aeec95beecae6d343b0bbdcf5f003652, type: 2}
+  - {fileID: 11400000, guid: c4cb22a9d9baf644fb32147ce45b8646, type: 2}
+  - {fileID: 11400000, guid: 0191ddab2cf55e04fb826ae5ef0897e7, type: 2}
+  - {fileID: 11400000, guid: 046f25d3e829f1846989493f5a69acff, type: 2}
+  - {fileID: 11400000, guid: dcbac23edbf37cf4fa85d60f8af6e013, type: 2}
+  - {fileID: 11400000, guid: c802952c750084243861fd6b43ecea03, type: 2}
+  - {fileID: 11400000, guid: c44a1993141f9da40b0e4bc3e19c6f2b, type: 2}
+  - {fileID: 11400000, guid: 64d8c48173a62d9449b378cd352c6730, type: 2}
+  - {fileID: 11400000, guid: 891f9ee64498ff44cb5cbdbbc47614d9, type: 2}
+  - {fileID: 11400000, guid: 960574979bff52d499ccbc0dfffd1a38, type: 2}
+  - {fileID: 11400000, guid: e795191f55bd4e740820233a911d6bbb, type: 2}
+  - {fileID: 11400000, guid: d2ada4d5564475241b8cb54fbfebafa3, type: 2}
+  - {fileID: 11400000, guid: 72a9ed6cc5157b441baa464bf87c8070, type: 2}
+  - {fileID: 11400000, guid: c2e3d1e90993a8641974eacf937d7ce0, type: 2}
+  - {fileID: 11400000, guid: c9b945b9f3501a846a176efb49241dfa, type: 2}
+  - {fileID: 11400000, guid: 893ef147f9044da41aef57987ec6adb0, type: 2}
+  - {fileID: 11400000, guid: 8cf25ad5277e0924ebceb7dedc86c4f6, type: 2}
+  - {fileID: 11400000, guid: 3b4752ea2d97fb14cb056384c28624ac, type: 2}
+  - {fileID: 11400000, guid: 99862b54b783b664cb0b59a51c2ac718, type: 2}
+  - {fileID: 11400000, guid: 4d1d3404578df9748b54c411de64f6c4, type: 2}
   spawnAreaCollider: {fileID: 784773444}
   baseSpawnRate: 0.33333334
   maxSpawnRate: 8
-  swarmStagger: 0.12
+  swarmDelay: 0.15
   maxLeavesInWorld: 100
 --- !u!1 &2125966352
 GameObject:

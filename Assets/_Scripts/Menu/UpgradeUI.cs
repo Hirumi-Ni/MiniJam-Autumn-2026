@@ -22,7 +22,7 @@ public class UpgradeUI : MonoBehaviour
     [SerializeField] private string hiddenCost = "???";
 
     [Header("Owned State")]
-    [SerializeField] private string ownedLabel = "OWNED";
+    [SerializeField] private string ownedLabel = "Bought";
     #endregion
 
     #region [Unity Lifecycle]
