@@ -18,11 +18,11 @@ public class UpgradeUI : MonoBehaviour
     [Header("Hidden State")]
     [SerializeField] private Sprite questionMarkIcon;
     [SerializeField] private string hiddenTitle = "???";
-    [SerializeField] private string hiddenDescription = "Buy the previous upgrade to reveal this.";
+    [SerializeField] private string hiddenDescription = "Buy the previous upgrade to reveal.";
     [SerializeField] private string hiddenCost = "???";
 
     [Header("Owned State")]
-    [SerializeField] private string ownedLabel = "Bought";
+    [SerializeField] private string ownedLabel = "Owned";
     #endregion
 
     #region [Unity Lifecycle]

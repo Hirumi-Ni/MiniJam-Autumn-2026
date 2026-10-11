@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03f512ba70bb96748b1a5f73e3de341b, type: 3}
   m_Name: 2_Tool
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeSO
-  upgradeTitle: Windblower
+  upgradeTitle: Leaf Rake
   description: "Multiply collection radius \xD71.5 and multiply token per leaf by 2x."
-  icon: {fileID: 8699069900992395679, guid: e599f093373da60488d9380d2c2371b8, type: 3}
+  icon: {fileID: 1559704157218881296, guid: e599f093373da60488d9380d2c2371b8, type: 3}
   prerequisiteUpgrade: {fileID: 11400000, guid: 4646b4b4bef7f754d8560d0ab9406e46, type: 2}
   cost: 60
   effects:

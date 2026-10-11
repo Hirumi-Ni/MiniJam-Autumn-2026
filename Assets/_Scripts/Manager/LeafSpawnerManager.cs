@@ -11,6 +11,10 @@ public class LeafSpawnerManager : MonoBehaviour
 
     [Header("Spawn Area")]
     [SerializeField] private BoxCollider2D spawnAreaCollider;
+
+    [Header("Spawn Puff")]
+    [Tooltip("Puff animation played where each leaf appears")]
+    [SerializeField] private GameObject spawnPuffPrefab;
     #endregion
 
     #region [Spawn Rate]
@@ -27,7 +31,7 @@ public class LeafSpawnerManager : MonoBehaviour
 
     #region [Attributes]
     private float spawnTimer;
-    private int pendingSpawns; 
+    private int pendingSpawns;
     #endregion
 
     #region [Unity Lifecycle]
@@ -51,7 +55,7 @@ public class LeafSpawnerManager : MonoBehaviour
     #region [Methods]
     private void TriggerBurst()
     {
-        if (leafPrefab == null || leafTypeList.Count == 0 || spawnAreaCollider == null) return;
+        if (leafPrefab == null || leafTypeList.Count == 0 || spawnAreaCollider == null || PoolManager.Instance == null) return;
 
         int burstCount = UpgradeManager.Instance != null ? Mathf.Max(1, Mathf.RoundToInt(UpgradeManager.Instance.GetStat(StatType.BurstCount, 1f))) : 1;
         int room = maxLeavesInWorld - LeafController.ActiveCount - pendingSpawns;
@@ -76,11 +80,23 @@ public class LeafSpawnerManager : MonoBehaviour
         Vector2 spawnPos = GetRandomSpawnPosition();
         Quaternion rotation = Quaternion.Euler(0, 0, Random.Range(0f, 360f));
 
-        GameObject instance = Instantiate(leafPrefab, spawnPos, rotation, transform);
+        SpawnPuff(spawnPos);
 
-        if (instance.TryGetComponent(out LeafController leaf))
+        GameObject instance = PoolManager.Instance.Spawn(leafPrefab, spawnPos, rotation);
+        if (instance != null && instance.TryGetComponent(out LeafController leaf))
         {
-            leaf.Initialize(data);
+            leaf.Spawn(data);
+        }
+    }
+
+    private void SpawnPuff(Vector2 position)
+    {
+        if (spawnPuffPrefab == null) return;
+
+        GameObject puff = PoolManager.Instance.Spawn(spawnPuffPrefab, position, Quaternion.identity);
+        if (puff != null && puff.TryGetComponent(out SpawnPuff puffAnim))
+        {
+            puffAnim.Play();
         }
     }
 

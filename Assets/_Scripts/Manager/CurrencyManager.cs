@@ -22,15 +22,17 @@ public class CurrencyManager : MonoBehaviour
         GameEventHandler.OnLeafCollected -= AddCurrency;
     }
 
-    public void AddCurrency(int baseAmount)
+    public void AddCurrency(int baseAmount, Vector3 position)
     {
-        int amount = baseAmount;
+        int gain = baseAmount;
         if (UpgradeManager.Instance != null)
         {
-            amount = Mathf.Max(1, Mathf.RoundToInt(UpgradeManager.Instance.GetStat(StatType.LeafCoinValue, baseAmount)));
+            gain = Mathf.Max(1, Mathf.RoundToInt(UpgradeManager.Instance.GetStat(StatType.LeafCoinValue, baseAmount)));
         }
-        TotalCurrency += amount;
+
+        TotalCurrency += gain;
         GameEventHandler.OnCurrencyChange?.Invoke(TotalCurrency);
+        GameEventHandler.OnCoinsEarned?.Invoke(gain, position);
     }
 
     public bool TrySpendCurrency(int amount)

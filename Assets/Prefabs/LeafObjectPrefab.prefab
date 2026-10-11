@@ -16,7 +16,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1396608582919900276
 Transform:
   m_ObjectHideFlags: 0
@@ -27,7 +27,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.9, y: 0.9, z: 0.9}
+  m_LocalScale: {x: 0.7, y: 0.7, z: 0.7}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 5542333950168174206}
@@ -273,8 +273,8 @@ MonoBehaviour:
   leafFadeInDuration: 0.2
   fallEase: 5
   shadowStartScale: 1.4
-  shadowLandedScale: 0.7
-  shadowStartAlpha: 0.015
+  shadowLandedScale: 0.9
+  shadowStartAlpha: 0.1
   shadowLandedAlpha: 0.5
   landPunchStrength: 0.15
   landPunchDuration: 0.25

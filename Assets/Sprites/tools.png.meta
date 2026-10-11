@@ -14,6 +14,12 @@ TextureImporter:
   - first:
       213: 5292716684467120071
     second: tools_3
+  - first:
+      213: -5651667117540000442
+    second: tools_4
+  - first:
+      213: 3424674198401663528
+    second: tools_5
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -198,11 +204,33 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: tools_4
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 0
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 64db54e43be3191b0800000000000000
+      internalID: -5651667117540000442
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 1e521955354b145419a4084757baece4
+    spriteID: 73b383721e1cd0f4fa4393041ef52e08
     internalID: 0
     vertices: []
     indices: 
@@ -218,6 +246,7 @@ TextureImporter:
       tools_1: 8699069900992395679
       tools_2: 7155652846937496742
       tools_3: 5292716684467120071
+      tools_4: -5651667117540000442
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

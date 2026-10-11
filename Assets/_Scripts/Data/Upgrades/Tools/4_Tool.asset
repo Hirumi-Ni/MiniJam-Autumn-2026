@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03f512ba70bb96748b1a5f73e3de341b, type: 3}
   m_Name: 4_Tool
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeSO
-  upgradeTitle: Kendrick (gk tau apa ini)
+  upgradeTitle: Vacuum
   description: Multiply collection radius x2 and multiply token per leaf by 3x.
-  icon: {fileID: -9152078955928913938, guid: fd2a01c0541bd2f4eac076c35ba41fc4, type: 3}
+  icon: {fileID: 7155652846937496742, guid: e599f093373da60488d9380d2c2371b8, type: 3}
   prerequisiteUpgrade: {fileID: 11400000, guid: c95cb9d5ecc4f974b93ff3de48d77e59, type: 2}
   cost: 2500
   effects:

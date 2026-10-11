@@ -107,6 +107,9 @@ public class CursorController : MonoBehaviour
 
             if (rb == null) continue;
             grabbedLeaves.Add(leaf, rb);
+
+            AudioManager.Instance.PlayAudio(AudioManager.Instance.SFX_LeafMoving);
+
         }
     }
 

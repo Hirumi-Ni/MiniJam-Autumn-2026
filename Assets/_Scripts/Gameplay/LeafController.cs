@@ -73,17 +73,15 @@ public class LeafController : MonoBehaviour
         shadowBaseScale = shadowRenderer.transform.localScale;
         leafAuthoredColor = leafRenderer.color;
         shadowAuthoredColor = shadowRenderer.color;
-
-        currentLifetime = Random.Range(leafLifetimeMin, leafLifetimeMax);
-
-        if (leafData != null) Initialize(leafData);
     }
 
     private void OnEnable() => ActiveCount++;
 
-    private void OnDisable() => ActiveCount--;
-
-    private void Start() => PlayFallIntro();
+    private void OnDisable()
+    {
+        ActiveCount--;
+        KillTween();
+    }
 
     private void LateUpdate()
     {
@@ -114,11 +112,32 @@ public class LeafController : MonoBehaviour
     #endregion
 
     #region [Methods]
+    public void Spawn(LeafSO data)
+    {
+        ResetState();
+        Initialize(data);
+        PlayFallIntro();
+    }
+
     public void Initialize(LeafSO data)
     {
         leafData = data;
         leafCoinAmount = data.coinAmount;
         if (data.leafSprite != null) leafRenderer.sprite = data.leafSprite;
+    }
+
+    private void ResetState()
+    {
+        IsLanded = false;
+        IsDecaying = false;
+        IsCollected = false;
+        IsHeld = false;
+
+        currentLifetime = Random.Range(leafLifetimeMin, leafLifetimeMax);
+
+        rb.linearVelocity = Vector2.zero;
+        rb.angularVelocity = 0f;
+        col.enabled = false;
     }
 
     private void PlayFallIntro()
@@ -161,7 +180,7 @@ public class LeafController : MonoBehaviour
 
         leafRenderer.transform.DOPunchScale(Vector3.one * -landPunchStrength, landPunchDuration, 6, 0.5f).SetLink(gameObject);
 
-        //ntar masukkin audio manager disini (nunggu sex);
+        AudioManager.Instance.PlayAudio(AudioManager.Instance.SFX_LeafPop);
     }
 
     private void TriggerDecay()
@@ -169,7 +188,7 @@ public class LeafController : MonoBehaviour
         IsDecaying = true;
 
         shadowRenderer.DOFade(0f, 0.5f).SetLink(gameObject);
-        leafRenderer.DOFade(0f, 0.5f).SetLink(gameObject).OnComplete(() => Destroy(gameObject));
+        leafRenderer.DOFade(0f, 0.5f).SetLink(gameObject).OnComplete(ReturnToPool);
     }
 
     public void OnCollected()
@@ -178,19 +197,27 @@ public class LeafController : MonoBehaviour
         IsCollected = true;
         col.enabled = false;
 
-        GameEventHandler.OnLeafCollected?.Invoke(leafCoinAmount);
+        GameEventHandler.OnLeafCollected?.Invoke(leafCoinAmount, transform.position);
         KillTween();
 
         shadowRenderer.DOFade(0f, collectPopDuration).SetLink(gameObject);
         shadowRenderer.transform.DOScale(Vector3.zero, collectPopDuration).SetEase(Ease.InBack).SetLink(gameObject);
-        leafRenderer.transform.DOScale(Vector3.zero, collectPopDuration).SetEase(Ease.InBack).SetLink(gameObject).OnComplete(() => Destroy(gameObject));
+        leafRenderer.transform.DOScale(Vector3.zero, collectPopDuration).SetEase(Ease.InBack).SetLink(gameObject).OnComplete(ReturnToPool);
 
-        //ntar masukkin audio manager disini (nunggu sex);
+        AudioManager.Instance.PlayAudio(AudioManager.Instance.SFX_Fire);
+        AudioManager.Instance.PlayAudio(AudioManager.Instance.SFX_LeafCollected);
+    }
+
+    private void ReturnToPool()
+    {
+        KillTween();
+        PooledObject.Return(gameObject);
     }
 
     private void KillTween()
     {
         introSequence?.Kill();
+        introSequence = null;
         leafRenderer.DOKill();
         shadowRenderer.DOKill();
         leafRenderer.transform.DOKill();

@@ -1,23 +1,37 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 public class MenuTabUI : MonoBehaviour
 {
-    public GameObject panel1;
-    public GameObject panel2;
+    [Header("Panels")]
+    [SerializeField] private GameObject panel1;
+    [SerializeField] private GameObject panel2;
 
-    public GameObject button1Object;
-    public GameObject button2Object;
+    [Header("Tabs")]
+    [SerializeField] private TabButton tab1;
+    [SerializeField] private TabButton tab2;
 
-    public void SelectTab1()
+    private void Start()
     {
-        panel1.SetActive(true);
-        panel2.SetActive(false);
+        Select(1, playSound: false, instant: true);
     }
 
-    public void SelectTab2()
+    // Hook these up to the tab buttons' OnClick
+    public void SelectTab1() => Select(1, playSound: true);
+    public void SelectTab2() => Select(2, playSound: true);
+
+    private void Select(int index, bool playSound, bool instant = false)
     {
-        panel1.SetActive(false);
-        panel2.SetActive(true);
+        bool isFirst = index == 1;
+
+        panel1.SetActive(isFirst);
+        panel2.SetActive(!isFirst);
+
+        tab1.SetSelected(isFirst, instant);
+        tab2.SetSelected(!isFirst, instant);
+
+        if (playSound && AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayAudio(AudioManager.Instance.SFX_UIPopOpen);
+        }
     }
 }

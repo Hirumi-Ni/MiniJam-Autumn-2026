@@ -6,6 +6,7 @@ public class GameplayUI : MonoBehaviour
 {
     #region [References]
     [SerializeField] private TMP_Text currencyCounter;
+    [SerializeField] private GameObject pausePanelArea;
 
     [Header("Count Tween")]
     [SerializeField] private float countDuration = 0.25f;
@@ -25,6 +26,7 @@ public class GameplayUI : MonoBehaviour
     private void Awake()
     {
         counterTransform = currencyCounter.transform;
+        Time.timeScale = 1f;
     }
 
     private void OnEnable()
@@ -43,6 +45,7 @@ public class GameplayUI : MonoBehaviour
     {
         displayedValue = 0f;
         currencyCounter.text = "0";
+        pausePanelArea.SetActive(false);
     }
     #endregion
 
@@ -68,6 +71,20 @@ public class GameplayUI : MonoBehaviour
     {
         counterTransform.DOKill(true);
         counterTransform.DOPunchScale(Vector3.one * popStrength, popDuration, 6, 0.6f).SetLink(gameObject);
+    }
+
+    public void OpenPauseMenu()
+    {
+        Time.timeScale = 0f;
+        pausePanelArea.SetActive(true);
+        AudioManager.Instance.PlayAudio(AudioManager.Instance.SFX_UIPopOpen);
+    }
+
+    public void ClosePauseMenu()
+    {
+        Time.timeScale = 1f;
+        pausePanelArea.SetActive(false);
+        AudioManager.Instance.PlayAudio(AudioManager.Instance.SFX_UIPopClose);
     }
     #endregion
 }

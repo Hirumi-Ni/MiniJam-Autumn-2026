@@ -57,6 +57,7 @@ public class UpgradeManager : MonoBehaviour
         purchased.Add(upgrade);
         RebuildStats();
         GameEventHandler.OnUpgradePurchased?.Invoke(upgrade, 1);
+        AudioManager.Instance.PlayAudio(AudioManager.Instance.SFX_Buy);
         return true;
     }
     #endregion
