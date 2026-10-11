@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03f512ba70bb96748b1a5f73e3de341b, type: 3}
+  m_Name: 4_Tool
+  m_EditorClassIdentifier: Assembly-CSharp::UpgradeSO
+  upgradeTitle: gk tau apa ini
+  description: Multiply collection radius x2 and multiply token per leaf by 3x.
+  icon: {fileID: -4216438512655852726, guid: a675b6e0f741a414c8cea9256cdc3ee3, type: 3}
+  prerequisiteUpgrade: {fileID: 11400000, guid: c95cb9d5ecc4f974b93ff3de48d77e59, type: 2}
+  cost: 2500
+  effects:
+  - stat: 0
+    mode: 1
+    value: 2
+  - stat: 1
+    mode: 1
+    value: 3

@@ -1,26 +1,41 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
-public enum UpgradeType
+public enum StatType
 {
-    MagnetRadius,
-    BurstSpawnCount,
-    SpawnInterval,
-    CoinMultiplier
+    DragRadius,
+    LeafCoinValue,
+    SpawnRate,
+    BurstCount
 }
-[CreateAssetMenu(fileName = "NewUpgradeSO", menuName = "Incremental/Single Upgrade Data")]
+
+public enum EffectMode
+{
+    Add,   
+    Multiply   
+}
+
+[Serializable]
+public class UpgradeEffect
+{
+    public StatType stat;
+    public EffectMode mode = EffectMode.Add;
+    public float value = 1f;
+}
+
+[CreateAssetMenu(fileName = "NewUpgradeSO", menuName = "Incremental/Upgrade Data")]
 public class UpgradeSO : ScriptableObject
 {
     [Header("Basic Info")]
-    public string upgradeId;
     public string upgradeTitle;
     [TextArea(2, 5)] public string description;
     public Sprite icon;
-    public UpgradeType upgradeType;
-
-    [Header("Progression Chain")]
     public UpgradeSO prerequisiteUpgrade;
 
-    [Header("Cost & Stat Impact")]
+    [Header("Cost")]
     public int cost = 10;
-    public float effectValue = 1f;
+
+    [Header("Effects")]
+    public List<UpgradeEffect> effects = new List<UpgradeEffect>();
 }

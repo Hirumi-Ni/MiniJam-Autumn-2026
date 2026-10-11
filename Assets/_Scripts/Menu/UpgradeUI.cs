@@ -14,6 +14,15 @@ public class UpgradeUI : MonoBehaviour
     [SerializeField] private TMP_Text costText;
     [SerializeField] private Image iconImage;
     [SerializeField] private Button buyButton;
+
+    [Header("Hidden State")]
+    [SerializeField] private Sprite questionMarkIcon;
+    [SerializeField] private string hiddenTitle = "???";
+    [SerializeField] private string hiddenDescription = "Buy the previous upgrade to reveal this.";
+    [SerializeField] private string hiddenCost = "???";
+
+    [Header("Owned State")]
+    [SerializeField] private string ownedLabel = "OWNED";
     #endregion
 
     #region [Unity Lifecycle]
@@ -21,7 +30,6 @@ public class UpgradeUI : MonoBehaviour
     {
         GameEventHandler.OnCurrencyChange += OnCurrencyUpdated;
         GameEventHandler.OnUpgradePurchased += OnUpgradePurchased;
-
         RefreshUI();
     }
 
@@ -33,26 +41,12 @@ public class UpgradeUI : MonoBehaviour
 
     private void Start()
     {
-        if (buyButton != null)
-        {
-            buyButton.onClick.AddListener(OnBuyButtonClicked);
-        }
-
-        SetupStaticDisplay();
+        if (buyButton != null) buyButton.onClick.AddListener(OnBuyButtonClicked);
         RefreshUI();
     }
     #endregion
 
     #region [Methods]
-    private void SetupStaticDisplay()
-    {
-        if (upgradeData == null) return;
-
-        if (titleText != null) titleText.text = upgradeData.upgradeTitle;
-        if (descriptionText != null) descriptionText.text = upgradeData.description;
-        if (iconImage != null && upgradeData.icon != null) iconImage.sprite = upgradeData.icon;
-    }
-
     private void OnBuyButtonClicked()
     {
         if (UpgradeManager.Instance != null && upgradeData != null)
@@ -75,26 +69,48 @@ public class UpgradeUI : MonoBehaviour
     {
         if (upgradeData == null || UpgradeManager.Instance == null) return;
 
-        bool isPurchased = UpgradeManager.Instance.IsUpgradePurchased(upgradeData);
-        bool isPrerequisiteMet = UpgradeManager.Instance.IsPrerequisiteMet(upgradeData);
-        int availableCurrency = currentCurrency ?? (CurrencyManager.Instance != null ? CurrencyManager.Instance.TotalCurrency : 0);
+        UpgradeState state = UpgradeManager.Instance.GetState(upgradeData);
+        int currency = currentCurrency ?? (CurrencyManager.Instance != null ? CurrencyManager.Instance.TotalCurrency : 0);
 
-        if (isPurchased)
+        switch (state)
         {
-            //if (costText != null) costText.text = "PURCHASED";
-            if (buyButton != null) buyButton.interactable = false;
+            case UpgradeState.Hidden:
+                SetText(titleText, hiddenTitle);
+                SetText(descriptionText, hiddenDescription);
+                SetText(costText, hiddenCost);
+                if (iconImage != null && questionMarkIcon != null) iconImage.sprite = questionMarkIcon;
+                SetButton(false);
+                break;
+
+            case UpgradeState.Available:
+                ShowFullInfo();
+                SetText(costText, $"${upgradeData.cost}");
+                SetButton(currency >= upgradeData.cost);
+                break;
+
+            case UpgradeState.Owned:
+                ShowFullInfo();
+                SetText(costText, ownedLabel);
+                SetButton(false);
+                break;
         }
-        else if (!isPrerequisiteMet)
-        {
-            string reqName = upgradeData.prerequisiteUpgrade != null ? upgradeData.prerequisiteUpgrade.upgradeTitle : "Previous Item";
-            //if (costText != null) costText.text = $"Locked (Requires: {reqName})";
-            if (buyButton != null) buyButton.interactable = false;
-        }
-        else
-        {
-            if (costText != null) costText.text = $"${upgradeData.cost}";
-            if (buyButton != null) buyButton.interactable = availableCurrency >= upgradeData.cost;
-        }
+    }
+
+    private void ShowFullInfo()
+    {
+        SetText(titleText, upgradeData.upgradeTitle);
+        SetText(descriptionText, upgradeData.description);
+        if (iconImage != null && upgradeData.icon != null) iconImage.sprite = upgradeData.icon;
+    }
+
+    private void SetText(TMP_Text target, string value)
+    {
+        if (target != null) target.text = value;
+    }
+
+    private void SetButton(bool interactable)
+    {
+        if (buyButton != null) buyButton.interactable = interactable;
     }
     #endregion
 }

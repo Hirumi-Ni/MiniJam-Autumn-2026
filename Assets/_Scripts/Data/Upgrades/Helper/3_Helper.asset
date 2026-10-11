@@ -10,13 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 03f512ba70bb96748b1a5f73e3de341b, type: 3}
-  m_Name: TestUpgrade1
+  m_Name: 3_Helper
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeSO
-  upgradeId: 2
-  upgradeTitle: Vacuum
-  description: Increase your drag radius by 5.
-  icon: {fileID: 7487784453491561550, guid: a675b6e0f741a414c8cea9256cdc3ee3, type: 3}
-  upgradeType: 0
-  prerequisiteUpgrade: {fileID: 0}
-  cost: 10
-  effectValue: 5
+  upgradeTitle: Third Helper
+  description: Multiply the leaf fall speed by 2x.
+  icon: {fileID: 4816711620819906248, guid: 57bf8bfd6a497b944a42bbefd1c52ee1, type: 3}
+  prerequisiteUpgrade: {fileID: 11400000, guid: db432167b3b4ec5428488310640139d6, type: 2}
+  cost: 400
+  effects:
+  - stat: 2
+    mode: 1
+    value: 2

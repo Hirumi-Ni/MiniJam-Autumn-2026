@@ -3,10 +3,11 @@ using UnityEngine;
 
 public class CampfireController : MonoBehaviour
 {
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.TryGetComponent<LeafController>(out LeafController leaf))
+        if (collision.collider.TryGetComponent<LeafController>(out LeafController leaf))
         {
+            if (!leaf.IsLanded) return;
             leaf.OnCollected();
         }
     }

@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03f512ba70bb96748b1a5f73e3de341b, type: 3}
+  m_Name: 2_Helper
+  m_EditorClassIdentifier: Assembly-CSharp::UpgradeSO
+  upgradeTitle: Squirrel
+  description: Multiply the leaf fall speed by 2x and spawns 3 leaves at a time.
+  icon: {fileID: -5273715709344786333, guid: 57bf8bfd6a497b944a42bbefd1c52ee1, type: 3}
+  prerequisiteUpgrade: {fileID: 11400000, guid: 662cb7d5117421345aa3b641143db701, type: 2}
+  cost: 100
+  effects:
+  - stat: 2
+    mode: 1
+    value: 1.5
+  - stat: 3
+    mode: 0
+    value: 1

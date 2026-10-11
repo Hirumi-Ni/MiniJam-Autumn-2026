@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 
 public class LeafSpawnerManager : MonoBehaviour
@@ -12,13 +13,21 @@ public class LeafSpawnerManager : MonoBehaviour
     [SerializeField] private BoxCollider2D spawnAreaCollider;
     #endregion
 
-    #region [Spawn Settings]
+    #region [Spawn Rate]
+    [Header("Spawn Rate")]
+    [SerializeField] private float baseSpawnRate = 1f / 3f;
+    [SerializeField] private float maxSpawnRate = 8f;
+
+    [Header("Swarm Scatter")]
+    [SerializeField] private float swarmDelay = 0.15f;
+
     [Header("Performance Cap")]
-    [SerializeField] private int maxLeavesInWorld = 100;
+    [SerializeField] private int maxLeavesInWorld = 150;
     #endregion
 
     #region [Attributes]
-    private float spawnTimer = 0f;
+    private float spawnTimer;
+    private int pendingSpawns; 
     #endregion
 
     #region [Unity Lifecycle]
@@ -26,82 +35,72 @@ public class LeafSpawnerManager : MonoBehaviour
     {
         spawnTimer += Time.deltaTime;
 
-        // Fetch current interval stat from UpgradeManager (fallback to 3.0s if UpgradeManager isn't in scene)
-        float currentInterval = UpgradeManager.Instance != null
-            ? UpgradeManager.Instance.GetSpawnInterval()
-            : 3.0f;
+        float rate = UpgradeManager.Instance != null ? UpgradeManager.Instance.GetStat(StatType.SpawnRate, baseSpawnRate) : baseSpawnRate;
+        rate = Mathf.Min(rate, maxSpawnRate);
 
-        if (spawnTimer >= currentInterval)
+        float interval = 1f / Mathf.Max(0.01f, rate);
+
+        if (spawnTimer >= interval)
         {
-            spawnTimer = 0f;
-            TriggerBurstSpawn();
+            spawnTimer -= interval;
+            TriggerBurst();
         }
     }
     #endregion
 
     #region [Methods]
-    private void TriggerBurstSpawn()
+    private void TriggerBurst()
     {
-        if (leafPrefab == null || leafTypeList == null || leafTypeList.Count == 0 || spawnAreaCollider == null) return;
+        if (leafPrefab == null || leafTypeList.Count == 0 || spawnAreaCollider == null) return;
 
-        // Fetch current burst count from UpgradeManager (fallback to 1 if UpgradeManager isn't in scene)
-        int burstCount = UpgradeManager.Instance != null
-            ? UpgradeManager.Instance.GetBurstSpawnCount()
-            : 1;
+        int burstCount = UpgradeManager.Instance != null ? Mathf.Max(1, Mathf.RoundToInt(UpgradeManager.Instance.GetStat(StatType.BurstCount, 1f))) : 1;
+        int room = maxLeavesInWorld - LeafController.ActiveCount - pendingSpawns;
+        int toSpawn = Mathf.Min(burstCount, room);
 
-        // Check how many active leaves currently exist in the scene
-        int currentLeafCount = FindObjectsByType<LeafController>(FindObjectsSortMode.None).Length;
-
-        for (int i = 0; i < burstCount; i++)
+        for (int i = 0; i < toSpawn; i++)
         {
-            if (currentLeafCount >= maxLeavesInWorld) break;
-
-            SpawnSingleLeaf();
-            currentLeafCount++;
+            pendingSpawns++;
+            DOVirtual.DelayedCall(i * swarmStagger, () =>
+            {
+                pendingSpawns--;
+                SpawnSingleLeaf();
+            }).SetLink(gameObject);
         }
     }
 
     private void SpawnSingleLeaf()
     {
-        LeafSO selectedLeafData = GetRandomWeightedLeaf();
-        if (selectedLeafData == null) return;
+        LeafSO data = GetRandomWeightedLeaf();
+        if (data == null) return;
 
         Vector2 spawnPos = GetRandomSpawnPosition();
-        Quaternion randomRotation = Quaternion.Euler(0, 0, Random.Range(0f, 360f));
+        Quaternion rotation = Quaternion.Euler(0, 0, Random.Range(0f, 360f));
 
-        GameObject instance = Instantiate(leafPrefab, spawnPos, randomRotation, transform);
+        GameObject instance = Instantiate(leafPrefab, spawnPos, rotation, transform);
 
-        if (instance.TryGetComponent<LeafController>(out LeafController leafController))
+        if (instance.TryGetComponent(out LeafController leaf))
         {
-            leafController.Initialize(selectedLeafData);
+            leaf.Initialize(data);
         }
     }
 
     private LeafSO GetRandomWeightedLeaf()
     {
-        if (leafTypeList.Count == 0) return null;
-
         float totalWeight = 0f;
         foreach (LeafSO leaf in leafTypeList)
         {
-            if (leaf != null)
-            {
-                totalWeight += leaf.spawnWeight;
-            }
+            if (leaf != null) totalWeight += leaf.spawnWeight;
         }
+        if (totalWeight <= 0f) return null;
 
-        float randomRoll = Random.Range(0f, totalWeight);
-        float currentWeightSum = 0f;
+        float roll = Random.Range(0f, totalWeight);
+        float sum = 0f;
 
         foreach (LeafSO leaf in leafTypeList)
         {
             if (leaf == null) continue;
-
-            currentWeightSum += leaf.spawnWeight;
-            if (randomRoll <= currentWeightSum)
-            {
-                return leaf;
-            }
+            sum += leaf.spawnWeight;
+            if (roll <= sum) return leaf;
         }
 
         return leafTypeList[0];
@@ -109,23 +108,15 @@ public class LeafSpawnerManager : MonoBehaviour
 
     private Vector2 GetRandomSpawnPosition()
     {
-        if (spawnAreaCollider == null) return transform.position;
-
         Bounds bounds = spawnAreaCollider.bounds;
-
-        float randomX = Random.Range(bounds.min.x, bounds.max.x);
-        float randomY = Random.Range(bounds.min.y, bounds.max.y);
-
-        return new Vector2(randomX, randomY);
+        return new Vector2(Random.Range(bounds.min.x, bounds.max.x), Random.Range(bounds.min.y, bounds.max.y));
     }
 
     private void OnDrawGizmosSelected()
     {
-        if (spawnAreaCollider != null)
-        {
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireCube(spawnAreaCollider.bounds.center, spawnAreaCollider.bounds.size);
-        }
+        if (spawnAreaCollider == null) return;
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireCube(spawnAreaCollider.bounds.center, spawnAreaCollider.bounds.size);
     }
     #endregion
 }

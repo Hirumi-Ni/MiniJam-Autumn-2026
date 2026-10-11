@@ -10,13 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 03f512ba70bb96748b1a5f73e3de341b, type: 3}
-  m_Name: TestUpgrade2
+  m_Name: 1_Tool
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeSO
-  upgradeId: 2
-  upgradeTitle: Vacuum
-  description: Increase your drag radius by 5.
-  icon: {fileID: 7487784453491561550, guid: a675b6e0f741a414c8cea9256cdc3ee3, type: 3}
-  upgradeType: 0
+  upgradeTitle: Leaf Rake
+  description: "Multiply collection radius \xD71.25 and +1 token per leaf."
+  icon: {fileID: 1559704157218881296, guid: e599f093373da60488d9380d2c2371b8, type: 3}
   prerequisiteUpgrade: {fileID: 0}
-  cost: 10
-  effectValue: 5
+  cost: 15
+  effects:
+  - stat: 0
+    mode: 1
+    value: 1.25
+  - stat: 1
+    mode: 0
+    value: 1

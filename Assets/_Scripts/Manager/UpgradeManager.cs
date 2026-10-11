@@ -1,18 +1,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum UpgradeState
+{
+    Hidden,      
+    Available,   
+    Owned      
+}
+
 public class UpgradeManager : MonoBehaviour
 {
     public static UpgradeManager Instance { get; private set; }
 
-    #region [References]
-    [Header("Upgrades Library")]
-    [SerializeField] private List<UpgradeSO> allUpgrades;
-    #endregion
-
-    #region [Attributes]
-    private HashSet<string> purchasedUpgradeIds = new HashSet<string>();
-    #endregion
+    private HashSet<UpgradeSO> purchased = new HashSet<UpgradeSO>();
+    private Dictionary<StatType, float> addBonus = new Dictionary<StatType, float>();
+    private Dictionary<StatType, float> mulBonus = new Dictionary<StatType, float>();
 
     #region [Unity Lifecycle]
     private void Awake()
@@ -26,95 +28,68 @@ public class UpgradeManager : MonoBehaviour
     }
     #endregion
 
-    #region [Methods]
+    #region [Upgrade State]
     public bool IsUpgradePurchased(UpgradeSO upgrade)
     {
-        if (upgrade == null) return false;
-        return purchasedUpgradeIds.Contains(upgrade.upgradeId);
+        return upgrade != null && purchased.Contains(upgrade);
     }
 
     public bool IsPrerequisiteMet(UpgradeSO upgrade)
     {
         if (upgrade == null) return false;
-        // If there's no prerequisite, it's the start of a chain and is immediately available
-        if (upgrade.prerequisiteUpgrade == null) return true;
+        return upgrade.prerequisiteUpgrade == null || IsUpgradePurchased(upgrade.prerequisiteUpgrade);
+    }
 
-        return IsUpgradePurchased(upgrade.prerequisiteUpgrade);
+    public UpgradeState GetState(UpgradeSO upgrade)
+    {
+        if (IsUpgradePurchased(upgrade)) return UpgradeState.Owned;
+        if (IsPrerequisiteMet(upgrade)) return UpgradeState.Available;
+        return UpgradeState.Hidden;
     }
 
     public bool TryBuyUpgrade(UpgradeSO upgrade)
     {
         if (upgrade == null) return false;
+        if (GetState(upgrade) != UpgradeState.Available) return false;
+        if (CurrencyManager.Instance == null) return false;
+        if (!CurrencyManager.Instance.TrySpendCurrency(upgrade.cost)) return false;
 
-        // Cannot buy if already owned
-        if (IsUpgradePurchased(upgrade)) return false;
+        purchased.Add(upgrade);
+        RebuildStats();
+        GameEventHandler.OnUpgradePurchased?.Invoke(upgrade, 1);
+        return true;
+    }
+    #endregion
 
-        // Cannot buy if previous item hasn't been bought yet
-        if (!IsPrerequisiteMet(upgrade)) return false;
-
-        // Try spend currency
-        if (CurrencyManager.Instance != null && CurrencyManager.Instance.TrySpendCurrency(upgrade.cost))
-        {
-            purchasedUpgradeIds.Add(upgrade.upgradeId);
-            GameEventHandler.OnUpgradePurchased?.Invoke(upgrade, 1);
-            return true;
-        }
-
-        return false;
+    #region [Stats]
+    public float GetStat(StatType stat, float baseValue)
+    {
+        float add = addBonus.TryGetValue(stat, out float a) ? a : 0f;
+        float mul = mulBonus.TryGetValue(stat, out float m) ? m : 1f;
+        return (baseValue + add) * mul;
     }
 
-    // --- Dynamic Stat Getters ---
-
-    public float GetMagnetRadius()
+    private void RebuildStats()
     {
-        float baseValue = 2.5f; // Default base radius
-        foreach (UpgradeSO u in allUpgrades)
+        addBonus.Clear();
+        mulBonus.Clear();
+
+        foreach (UpgradeSO upgrade in purchased)
         {
-            if (u != null && u.upgradeType == UpgradeType.MagnetRadius && IsUpgradePurchased(u))
+            foreach (UpgradeEffect effect in upgrade.effects)
             {
-                baseValue += u.effectValue;
+                if (effect.mode == EffectMode.Add)
+                {
+                    float current = addBonus.TryGetValue(effect.stat, out float a) ? a : 0f;
+                    addBonus[effect.stat] = current + effect.value;
+                }
+                else
+                {
+                    float current = mulBonus.TryGetValue(effect.stat, out float m) ? m : 1f;
+                    mulBonus[effect.stat] = current * effect.value;
+                }
             }
         }
-        return baseValue;
-    }
-
-    public int GetBurstSpawnCount()
-    {
-        int baseValue = 1; // Default base count
-        foreach (UpgradeSO u in allUpgrades)
-        {
-            if (u != null && u.upgradeType == UpgradeType.BurstSpawnCount && IsUpgradePurchased(u))
-            {
-                baseValue += Mathf.RoundToInt(u.effectValue);
-            }
-        }
-        return baseValue;
-    }
-
-    public float GetSpawnInterval()
-    {
-        float baseInterval = 3.0f; // Default base interval in seconds
-        foreach (UpgradeSO u in allUpgrades)
-        {
-            if (u != null && u.upgradeType == UpgradeType.SpawnInterval && IsUpgradePurchased(u))
-            {
-                baseInterval -= u.effectValue;
-            }
-        }
-        return Mathf.Max(0.4f, baseInterval); // Cap minimum spawn rate
-    }
-
-    public float GetCoinMultiplier()
-    {
-        float baseMultiplier = 1.0f;
-        foreach (UpgradeSO u in allUpgrades)
-        {
-            if (u != null && u.upgradeType == UpgradeType.CoinMultiplier && IsUpgradePurchased(u))
-            {
-                baseMultiplier += u.effectValue;
-            }
-        }
-        return baseMultiplier;
     }
     #endregion
 }
