@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class FinalItemUI : MonoBehaviour
 {
-    [SerializeField] private int FinalCost = 50000;
+    [SerializeField] private int FinalCost = 10000;
 
     [Header("Item Info")]
     [SerializeField] private string itemTitle;
@@ -23,13 +23,15 @@ public class FinalItemUI : MonoBehaviour
     [Header("Hidden State")]
     [SerializeField] private Sprite questionMarkIcon;
     [SerializeField] private string hiddenTitle = "???";
-    [SerializeField] private string hiddenDescription = "";
+    [SerializeField] private string hiddenDescription = "Get enought tokens to reveal.";
+
+    [Header("Owned State")]
+    [SerializeField] private string ownedLabel = "Bought";
 
     [Header("Reveal Animation")]
     [SerializeField] private float revealDuration = 0.3f;
 
     [Header("Ending")]
-    [Tooltip("Full-screen black CanvasGroup, alpha 0, used for the fade out")]
     [SerializeField] private CanvasGroup fadeGroup;
     [SerializeField] private float fadeOutDuration = 1.5f;
     [Tooltip("Must be in Build Settings")]
@@ -58,8 +60,6 @@ public class FinalItemUI : MonoBehaviour
             fadeGroup.blocksRaycasts = false;
         }
 
-        buyButton.enabled = false;
-
         SetText(costText, "$" + FinalCost);
         Refresh();
     }
@@ -80,12 +80,17 @@ public class FinalItemUI : MonoBehaviour
         if (buyButton != null) buyButton.interactable = CanAfford(coins);
     }
 
+    // Shows the real title, description, and icon
     private void RevealInfo()
     {
         if (revealed) return;
-        buyButton.enabled = true;
         revealed = true;
 
+        ShowFullInfo(animate: true);
+    }
+
+    private void ShowFullInfo(bool animate)
+    {
         SetText(titleText, itemTitle);
         SetText(descriptionText, itemDescription);
 
@@ -94,17 +99,26 @@ public class FinalItemUI : MonoBehaviour
             iconImage.sprite = itemIcon;
             iconImage.enabled = true;
             iconImage.transform.DOKill();
-            iconImage.transform.localScale = Vector3.zero;
-            iconImage.transform.DOScale(Vector3.one, revealDuration).SetEase(Ease.OutBack).SetLink(gameObject);
+
+            if (animate)
+            {
+                iconImage.transform.localScale = Vector3.zero;
+                iconImage.transform.DOScale(Vector3.one, revealDuration).SetEase(Ease.OutBack).SetLink(gameObject);
+            }
+            else
+            {
+                iconImage.transform.localScale = Vector3.one;
+            }
         }
 
-        if (titleText != null)
+        if (animate && titleText != null)
         {
             titleText.transform.DOKill(true);
             titleText.transform.DOPunchScale(Vector3.one * 0.15f, revealDuration, 5, 0.5f).SetLink(gameObject);
         }
     }
 
+    // Shows the question mark and hidden text
     private void HideInfo()
     {
         revealed = false;
@@ -127,8 +141,12 @@ public class FinalItemUI : MonoBehaviour
         if (CurrencyManager.Instance == null || !CurrencyManager.Instance.TrySpendCurrency(FinalCost)) return;
 
         purchased = true;
+
+        revealed = false;
+        ShowFullInfo(animate: true);
+        SetText(costText, ownedLabel);
+
         if (buyButton != null) buyButton.interactable = false;
-        SetText(costText, "Bought");
 
         FadeToEnding();
     }

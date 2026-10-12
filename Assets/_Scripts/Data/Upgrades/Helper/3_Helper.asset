@@ -16,7 +16,7 @@ MonoBehaviour:
   description: Multiply the leaf fall speed by 2x.
   icon: {fileID: 4816711620819906248, guid: 57bf8bfd6a497b944a42bbefd1c52ee1, type: 3}
   prerequisiteUpgrade: {fileID: 11400000, guid: db432167b3b4ec5428488310640139d6, type: 2}
-  cost: 300
+  cost: 760
   effects:
   - stat: 2
     mode: 1

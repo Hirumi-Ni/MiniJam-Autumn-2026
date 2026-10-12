@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: 2_Helper
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeSO
   upgradeTitle: Squirrel
-  description: Multiply the leaf fall speed by 2x and spawns 3 leaves at a time.
+  description: Multiply the leaf fall speed by 1.5x and spawns 2 leaves at a time.
   icon: {fileID: -5273715709344786333, guid: 57bf8bfd6a497b944a42bbefd1c52ee1, type: 3}
   prerequisiteUpgrade: {fileID: 11400000, guid: 662cb7d5117421345aa3b641143db701, type: 2}
   cost: 90

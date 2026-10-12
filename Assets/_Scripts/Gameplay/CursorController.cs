@@ -5,16 +5,17 @@ using UnityEngine.InputSystem;
 public class CursorController : MonoBehaviour
 {
     #region [References]
-    [SerializeField] private float pullForce = 25f;
-    [SerializeField] private float maxLeafSpeed = 14f;
-    [SerializeField] private LayerMask leafLayer;
-
     [Header("Drag Radius")]
     [SerializeField] private float baseDragRadius = 1f;
+    [SerializeField] private LayerMask leafLayer;
 
     [Header("Follow Feel")]
+    [Tooltip("How quickly grabbed leaves catch up to the cursor. Higher = snappier.")]
     [SerializeField] private float followSharpness = 20f;
+    [Tooltip("Desired leaf speed per unit of distance to the cursor, before clamping.")]
     [SerializeField] private float followGain = 10f;
+    [SerializeField] private float maxLeafSpeed = 14f;
+    [Tooltip("Fraction of a leaf's velocity kept when you let go")]
     [Range(0f, 1f)][SerializeField] private float releaseVelocityKeep = 0.5f;
 
     [Header("Gizmos")]
@@ -23,18 +24,21 @@ public class CursorController : MonoBehaviour
     #endregion
 
     #region [Properties]
-    public float MagnetRadius => UpgradeManager.Instance != null ? UpgradeManager.Instance.GetStat(StatType.DragRadius, baseDragRadius) : baseDragRadius;
+    public float MagnetRadius => UpgradeManager.Instance != null
+        ? UpgradeManager.Instance.GetStat(StatType.DragRadius, baseDragRadius)
+        : baseDragRadius;
     #endregion
 
     #region [Attributes]
     private Camera mainCamera;
-    private Vector2 mouseWorldPos;
+    private Vector2 pointerWorldPos;
     private bool isDragging;
 
-    private Dictionary<LeafController, Rigidbody2D> grabbedLeaves = new Dictionary<LeafController, Rigidbody2D>();
-    private List<LeafController> invalidLeaves = new List<LeafController>();
-    private List<Collider2D> overlapResults = new List<Collider2D>(64);
-    private ContactFilter2D leafContactFilter;
+    // Leaves caught during this drag. They stay attached until release,
+    // even when they're outside the radius.
+    private readonly Dictionary<LeafController, Rigidbody2D> grabbedLeaves = new Dictionary<LeafController, Rigidbody2D>();
+    private readonly List<LeafController> invalidLeaves = new List<LeafController>();
+    private readonly Collider2D[] overlapBuffer = new Collider2D[64];
     #endregion
 
     #region [Unity Lifecycle]
@@ -42,22 +46,18 @@ public class CursorController : MonoBehaviour
     {
         mainCamera = Camera.main;
         if (radiusVisualizer != null) radiusVisualizer.enabled = false;
-
-        leafContactFilter = new ContactFilter2D();
-        leafContactFilter.SetLayerMask(leafLayer);
-        leafContactFilter.useTriggers = true;
     }
 
     private void Update()
     {
-        if (Mouse.current == null || mainCamera == null) return;
+        if (Pointer.current == null || mainCamera == null) return;
 
-        Vector2 screen = Mouse.current.position.ReadValue();
-        Vector3 screenPos3 = new Vector3(screen.x, screen.y, -mainCamera.transform.position.z);
-        mouseWorldPos = mainCamera.ScreenToWorldPoint(screenPos3);
+        Vector2 screenPosition = Pointer.current.position.ReadValue();
+        Vector3 screenPosition3 = new Vector3(screenPosition.x, screenPosition.y, -mainCamera.transform.position.z);
+        pointerWorldPos = mainCamera.ScreenToWorldPoint(screenPosition3);
 
-        if (Mouse.current.leftButton.wasPressedThisFrame) StartDrag();
-        else if (Mouse.current.leftButton.wasReleasedThisFrame) EndDrag();
+        if (Pointer.current.press.wasPressedThisFrame) StartDrag();
+        else if (Pointer.current.press.wasReleasedThisFrame) EndDrag();
 
         if (isDragging) DrawRadiusCircle();
     }
@@ -82,7 +82,6 @@ public class CursorController : MonoBehaviour
     {
         isDragging = false;
         if (radiusVisualizer != null) radiusVisualizer.enabled = false;
-
         foreach (KeyValuePair<LeafController, Rigidbody2D> pair in grabbedLeaves)
         {
             if (pair.Value != null) pair.Value.linearVelocity *= releaseVelocityKeep;
@@ -92,29 +91,24 @@ public class CursorController : MonoBehaviour
 
     private void GrabLeavesInRadius()
     {
-        overlapResults.Clear();
+        int count = Physics2D.OverlapCircleNonAlloc(pointerWorldPos, MagnetRadius, overlapBuffer, leafLayer);
 
-        Physics2D.OverlapCircle(mouseWorldPos, MagnetRadius, leafContactFilter, overlapResults);
-
-        for (int i = 0; i < overlapResults.Count; i++)
+        for (int i = 0; i < count; i++)
         {
-            Collider2D hit = overlapResults[i];
-
+            Collider2D hit = overlapBuffer[i];
             if (!hit.TryGetComponent(out LeafController leaf)) continue;
             if (!leaf.CanBeDragged || grabbedLeaves.ContainsKey(leaf)) continue;
 
             Rigidbody2D rb = hit.attachedRigidbody;
-
             if (rb == null) continue;
+
             grabbedLeaves.Add(leaf, rb);
-
-            AudioManager.Instance.PlayAudio(AudioManager.Instance.SFX_LeafMoving);
-
         }
     }
 
     private void FollowGrabbedLeaves()
     {
+        // Frame-rate independent smoothing factor
         float t = 1f - Mathf.Exp(-followSharpness * Time.fixedDeltaTime);
 
         invalidLeaves.Clear();
@@ -124,16 +118,20 @@ public class CursorController : MonoBehaviour
             LeafController leaf = pair.Key;
             Rigidbody2D rb = pair.Value;
 
+            // Collected, decayed, or destroyed leaves get dropped from the grab list
             if (leaf == null || rb == null || !leaf.CanBeDragged)
             {
                 invalidLeaves.Add(leaf);
                 continue;
             }
 
-            Vector2 toCursor = mouseWorldPos - rb.position;
-            Vector2 desiredVelocity = Vector2.ClampMagnitude(toCursor * followGain, maxLeafSpeed);
+            Vector2 toPointer = pointerWorldPos - rb.position;
+            Vector2 desiredVelocity = Vector2.ClampMagnitude(toPointer * followGain, maxLeafSpeed);
 
+            // Set velocity directly so the leaf keeps up with the pointer no matter how far away it is
             rb.linearVelocity = Vector2.Lerp(rb.linearVelocity, desiredVelocity, t);
+
+            // Tumble with sideways movement, like the original torque did
             rb.AddTorque(-rb.linearVelocity.x, ForceMode2D.Force);
         }
 
@@ -157,8 +155,8 @@ public class CursorController : MonoBehaviour
         for (int i = 0; i <= circleSegments; i++)
         {
             float angle = i * deltaAngle;
-            float x = mouseWorldPos.x + Mathf.Cos(angle) * radius;
-            float y = mouseWorldPos.y + Mathf.Sin(angle) * radius;
+            float x = pointerWorldPos.x + Mathf.Cos(angle) * radius;
+            float y = pointerWorldPos.y + Mathf.Sin(angle) * radius;
             radiusVisualizer.SetPosition(i, new Vector3(x, y, 0f));
         }
     }
